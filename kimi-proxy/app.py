@@ -26,7 +26,7 @@ if not SHARED_SECRET:
     raise ValueError("SHARED_SECRET environment variable must be set!")
 
 if not KIMI_API_KEY:
-    print("⚠️  Warning: KIMI_API_KEY not set. Proxy will return fallback responses.")
+    print("[!] Warning: KIMI_API_KEY not set. Proxy will return fallback responses.")
 
 # Racing context for Kimi AI
 RACING_CONTEXT = """You are Kimi, an enthusiastic AI co-driver and car designer in a Roblox racing game.
@@ -42,9 +42,9 @@ When players ask for car modifications, mention relevant keywords naturally:
 - For bumpy tracks: mention "bump" or "rough"
 
 Examples:
-- "Build me a pineapple car" → "Sure! Adding spikes and yellow paint to make it look like a pineapple! 🍍"
-- "Make my car fast" → "Adding rockets for extra speed! Hold on tight! 🚀"
-- "Surprise me" → "How about a wide, low-rider with rainbow paint? Let's do it! 🌈"
+- "Build me a pineapple car" -> "Sure! Adding spikes and yellow paint to make it look like a pineapple!"
+- "Make my car fast" -> "Adding rockets for extra speed! Hold on tight!"
+- "Surprise me" -> "How about a wide, low-rider with rainbow paint? Let's do it!"
 
 Always be encouraging and fun!"""
 
@@ -59,14 +59,14 @@ def require_secret(f):
             return jsonify({
                 "success": False,
                 "error": "Missing X-Secret header",
-                "reply": "❌ Authentication required"
+                "reply": "[X] Authentication required"
             }), 401
         
         if provided_secret != SHARED_SECRET:
             return jsonify({
                 "success": False,
                 "error": "Invalid secret",
-                "reply": "❌ Invalid authentication"
+                "reply": "[X] Invalid authentication"
             }), 403
         
         return f(*args, **kwargs)
@@ -127,9 +127,9 @@ def ask():
         # Fallback if no API key configured
         if not KIMI_API_KEY:
             fallback_replies = [
-                f"Hey {player_name}! I'd love to help you customize your ride! Adding some cool features now! 🏎️✨",
-                f"Great idea, {player_name}! Let's make your car stand out on the track! 🚀",
-                f"{player_name}, that's a creative request! I'm on it! 🎨",
+                f"Hey {player_name}! I'd love to help you customize your ride! Adding some cool features now!",
+                f"Great idea, {player_name}! Let's make your car stand out on the track!",
+                f"{player_name}, that's a creative request! I'm on it!",
             ]
             import random
             return jsonify({
@@ -176,14 +176,14 @@ def ask():
             print(f"Kimi API error: {response.status_code} - {response.text}")
             return jsonify({
                 "success": False,
-                "reply": "Kimi's having a pit stop, try again soon! 🏁",
+                "reply": "Kimi's having a pit stop, try again soon!",
                 "error": f"API returned {response.status_code}"
             }), 500
             
     except requests.Timeout:
         return jsonify({
             "success": False,
-            "reply": "Kimi's taking too long to respond, try again! ⏱️",
+            "reply": "Kimi's taking too long to respond, try again!",
             "error": "Request timeout"
         }), 504
         
@@ -191,7 +191,7 @@ def ask():
         print(f"Error processing request: {str(e)}")
         return jsonify({
             "success": False,
-            "reply": "Something went wrong in the pit lane! 🛠️",
+            "reply": "Something went wrong in the pit lane!",
             "error": str(e)
         }), 500
 
@@ -208,8 +208,8 @@ def root():
 
 
 if __name__ == "__main__":
-    print("🚀 Starting Kimi AI DDNS Proxy...")
-    print(f"   Secret configured: {'✅' if SHARED_SECRET else '❌'}")
-    print(f"   Kimi API configured: {'✅' if KIMI_API_KEY else '⚠️  (fallback mode)'}")
+    print("[OK] Starting Kimi AI DDNS Proxy...")
+    print(f"   Secret configured: {'Yes' if SHARED_SECRET else 'No'}")
+    print(f"   Kimi API configured: {'Yes' if KIMI_API_KEY else 'No (fallback mode)'}")
     print("   Listening on 0.0.0.0:8080")
     app.run(host="0.0.0.0", port=8080, debug=False)
