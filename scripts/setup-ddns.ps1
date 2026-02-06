@@ -12,28 +12,28 @@ $UpdaterScript = "$env:USERPROFILE\duckdns_updater_robleezy-ai.ps1"
 
 # Remove if requested
 if ($Remove) {
-    Write-Host "🗑️  Removing scheduled task '$TaskName'..." -ForegroundColor Yellow
+    Write-Host "Removing scheduled task '$TaskName'..." -ForegroundColor Yellow
     Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
     
     if (Test-Path $UpdaterScript) {
         Remove-Item $UpdaterScript -Force
-        Write-Host "🗑️  Removed updater script" -ForegroundColor Yellow
+        Write-Host "Removed updater script" -ForegroundColor Yellow
     }
     
-    Write-Host "✅ DDNS updater removed" -ForegroundColor Green
+    Write-Host "DDNS updater removed" -ForegroundColor Green
     exit 0
 }
 
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 Write-Host "  DuckDNS Auto-Updater Setup" -ForegroundColor White
 Write-Host "  Domain: $Subdomain.duckdns.org" -ForegroundColor Gray
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Get token if not provided
 if (-not $Token) {
-    Write-Host "🔐 Please enter your DuckDNS auth token:" -ForegroundColor Yellow
+    Write-Host "Enter your DuckDNS auth token:" -ForegroundColor Yellow
     Write-Host "   (Get it from https://www.duckdns.org after logging in)" -ForegroundColor Gray
     $secureToken = Read-Host -AsSecureString
     $Token = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
@@ -42,26 +42,26 @@ if (-not $Token) {
 }
 
 if (-not $Token) {
-    Write-Host "❌ No token provided. Exiting." -ForegroundColor Red
+    Write-Host "No token provided. Exiting." -ForegroundColor Red
     exit 1
 }
 
 # Test the token first
 Write-Host ""
-Write-Host "🧪 Testing token with DuckDNS..." -ForegroundColor Cyan
+Write-Host "Testing token with DuckDNS..." -ForegroundColor Cyan
 $testUrl = "https://www.duckdns.org/update?domains=$Subdomain&token=$Token&ip="
 try {
     $testResponse = Invoke-WebRequest -Uri $testUrl -UseBasicParsing -TimeoutSec 30
     if ($testResponse.Content.Trim() -eq "OK") {
-        Write-Host "✅ Token is valid!" -ForegroundColor Green
+        Write-Host "Token is valid!" -ForegroundColor Green
     } elseif ($testResponse.Content.Trim() -eq "KO") {
-        Write-Host "❌ Token is invalid. Please check your token on https://www.duckdns.org" -ForegroundColor Red
+        Write-Host "Token is invalid. Please check your token on https://www.duckdns.org" -ForegroundColor Red
         exit 1
     } else {
-        Write-Host "⚠️  Unexpected response from DuckDNS. Continuing anyway..." -ForegroundColor Yellow
+        Write-Host "Unexpected response from DuckDNS. Continuing anyway..." -ForegroundColor Yellow
     }
 } catch {
-    Write-Host "⚠️  Could not test token (network error?). Continuing anyway..." -ForegroundColor Yellow
+    Write-Host "Could not test token (network error?). Continuing anyway..." -ForegroundColor Yellow
 }
 
 # Create the updater script
@@ -78,29 +78,29 @@ try {
     `$Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     
     if (`$Result -eq "OK") {
-        "[`$Timestamp] ✅ Updated successfully" | Out-File -FilePath `$LogFile -Append
+        "[`$Timestamp] OK - Updated successfully" | Out-File -FilePath `$LogFile -Append
     } else {
-        "[`$Timestamp] ❌ Update failed: `$Result" | Out-File -FilePath `$LogFile -Append
+        "[`$Timestamp] FAIL - Update failed: `$Result" | Out-File -FilePath `$LogFile -Append
     }
 } catch {
     `$Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    "[`$Timestamp] ❌ Error: `$_" | Out-File -FilePath `$LogFile -Append
+    "[`$Timestamp] ERROR - `$_" | Out-File -FilePath `$LogFile -Append
 }
 "@
 
 Set-Content -Path $UpdaterScript -Value $scriptContent
 Write-Host ""
-Write-Host "📝 Created updater script: $UpdaterScript" -ForegroundColor Green
+Write-Host "Created updater script: $UpdaterScript" -ForegroundColor Green
 
 # Remove existing task if it exists
 $existingTask = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 if ($existingTask) {
-    Write-Host "🔄 Removing existing scheduled task..." -ForegroundColor Yellow
+    Write-Host "Removing existing scheduled task..." -ForegroundColor Yellow
     Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
 }
 
 # Create the scheduled task
-Write-Host "⏰ Creating scheduled task..." -ForegroundColor Cyan
+Write-Host "Creating scheduled task..." -ForegroundColor Cyan
 
 $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$UpdaterScript`""
 
@@ -123,25 +123,25 @@ Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger @($Trigger1,
 Start-ScheduledTask -TaskName $TaskName
 
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
-Write-Host "  ✅ DuckDNS Auto-Updater Installed!" -ForegroundColor Green
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
+Write-Host "===========================================================" -ForegroundColor Green
+Write-Host "  DuckDNS Auto-Updater Installed!" -ForegroundColor Green
+Write-Host "===========================================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "📋 Task Details:" -ForegroundColor Cyan
+Write-Host "Task Details:" -ForegroundColor Cyan
 Write-Host "  Name:        $TaskName" -ForegroundColor Gray
 Write-Host "  Frequency:   Every 5 minutes" -ForegroundColor Gray
 Write-Host "  Log file:    $env:USERPROFILE\duckdns_$Subdomain.log" -ForegroundColor Gray
 Write-Host ""
-Write-Host "🔧 Management Commands:" -ForegroundColor Cyan
+Write-Host "Management Commands:" -ForegroundColor Cyan
 Write-Host "  View task:   Get-ScheduledTask -TaskName '$TaskName'" -ForegroundColor Gray
 Write-Host "  Run now:     Start-ScheduledTask -TaskName '$TaskName'" -ForegroundColor Gray
 Write-Host "  Disable:     Disable-ScheduledTask -TaskName '$TaskName'" -ForegroundColor Gray
 Write-Host "  Remove:      .\setup-ddns.ps1 -Remove" -ForegroundColor Gray
 Write-Host ""
-Write-Host "🌐 Your domain will stay updated:" -ForegroundColor Cyan
-Write-Host "   https://$Subdomain.duckdns.org → Your Home IP" -ForegroundColor White
+Write-Host "Your domain will stay updated:" -ForegroundColor Cyan
+Write-Host "   https://$Subdomain.duckdns.org -> Your Home IP" -ForegroundColor White
 Write-Host ""
-Write-Host "⚠️  Next steps:" -ForegroundColor Yellow
+Write-Host "Next steps:" -ForegroundColor Yellow
 Write-Host "   1. Setup port forwarding on your router (see ddns-setup.md)" -ForegroundColor Gray
 Write-Host "   2. Open Windows firewall port 8080 (run setup-firewall.ps1)" -ForegroundColor Gray
 Write-Host "   3. Start the Kimi Proxy service (run install-service.ps1)" -ForegroundColor Gray

@@ -15,7 +15,7 @@ function Save-Token($token) {
     $secureToken = ConvertTo-SecureString $token -AsPlainText -Force
     $encryptedToken = ConvertFrom-SecureString $secureToken
     Set-Content -Path $TokenFile -Value $encryptedToken
-    Write-Host "✅ Token saved securely to $TokenFile" -ForegroundColor Green
+    Write-Host "[OK] Token saved securely to $TokenFile" -ForegroundColor Green
 }
 
 # Function to load token
@@ -37,9 +37,9 @@ if (-not $Token) {
     if ($savedToken) {
         $Token = $savedToken
     } else {
-        Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+        Write-Host "===========================================================" -ForegroundColor Cyan
         Write-Host "  DuckDNS Auth Token Required for robleezy-ai.duckdns.org" -ForegroundColor Yellow
-        Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+        Write-Host "===========================================================" -ForegroundColor Cyan
         Write-Host ""
         Write-Host "Please enter your DuckDNS auth token (from https://www.duckdns.org):" -ForegroundColor White
         $secureInput = Read-Host -AsSecureString
@@ -50,7 +50,7 @@ if (-not $Token) {
         if ($Token) {
             Save-Token $Token
         } else {
-            Write-Host "❌ No token provided. Exiting." -ForegroundColor Red
+            Write-Host "[X] No token provided. Exiting." -ForegroundColor Red
             exit 1
         }
     }
@@ -58,16 +58,16 @@ if (-not $Token) {
 
 # Show status only
 if ($ShowStatus) {
-    Write-Host "📊 DuckDNS Status for $Subdomain.duckdns.org" -ForegroundColor Cyan
-    Write-Host "─────────────────────────────────────────────────────────" -ForegroundColor Gray
+    Write-Host "DuckDNS Status for $Subdomain.duckdns.org" -ForegroundColor Cyan
+    Write-Host "-----------------------------------------------------------" -ForegroundColor Gray
     
     # Get current public IP
     try {
         $publicIP = Invoke-RestMethod -Uri "https://checkip.amazonaws.com/" -UseBasicParsing -TimeoutSec 10
         $publicIP = $publicIP.Trim()
-        Write-Host "🌐 Your Public IP:    $publicIP" -ForegroundColor Green
+        Write-Host "Your Public IP:    $publicIP" -ForegroundColor Green
     } catch {
-        Write-Host "❌ Failed to get public IP" -ForegroundColor Red
+        Write-Host "[X] Failed to get public IP" -ForegroundColor Red
     }
     
     # Check DNS resolution
@@ -76,17 +76,17 @@ if ($ShowStatus) {
                       Where-Object { $_.AddressFamily -eq 'InterNetwork' } | 
                       Select-Object -First 1
         if ($resolvedIP) {
-            Write-Host "📡 DNS resolves to:   $($resolvedIP.IPAddressToString)" -ForegroundColor Green
+            Write-Host "DNS resolves to:   $($resolvedIP.IPAddressToString)" -ForegroundColor Green
         }
     } catch {
-        Write-Host "📡 DNS not resolving: Domain may not be set up yet" -ForegroundColor Yellow
+        Write-Host "DNS not resolving: Domain may not be set up yet" -ForegroundColor Yellow
     }
     
     # Check if token is saved
     if (Test-Path $TokenFile) {
-        Write-Host "🔐 Token status:      Saved securely" -ForegroundColor Green
+        Write-Host "Token status:      Saved securely" -ForegroundColor Green
     } else {
-        Write-Host "🔐 Token status:      Not saved (will prompt on next run)" -ForegroundColor Yellow
+        Write-Host "Token status:      Not saved (will prompt on next run)" -ForegroundColor Yellow
     }
     
     exit 0
@@ -101,19 +101,19 @@ try {
     
     if ($result -eq "OK") {
         $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-        Write-Host "[$timestamp] ✅ DuckDNS updated successfully" -ForegroundColor Green
+        Write-Host "[$timestamp] [OK] DuckDNS updated successfully" -ForegroundColor Green
     } elseif ($result -eq "KO") {
-        Write-Host "❌ DuckDNS update failed (invalid token?)" -ForegroundColor Red
+        Write-Host "[X] DuckDNS update failed (invalid token?)" -ForegroundColor Red
         # Clear saved token if it fails
         if (Test-Path $TokenFile) {
             Remove-Item $TokenFile -Force
-            Write-Host "🗑️  Cleared saved token. Please run again with correct token." -ForegroundColor Yellow
+            Write-Host "[!] Cleared saved token. Please run again with correct token." -ForegroundColor Yellow
         }
         exit 1
     } else {
-        Write-Host "⚠️  Unexpected response: $result" -ForegroundColor Yellow
+        Write-Host "[!] Unexpected response: $result" -ForegroundColor Yellow
     }
 } catch {
-    Write-Host "❌ Error updating DuckDNS: $_" -ForegroundColor Red
+    Write-Host "[X] Error updating DuckDNS: $_" -ForegroundColor Red
     exit 1
 }

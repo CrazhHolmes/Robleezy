@@ -48,17 +48,17 @@ $AppDirectory = Join-Path $RepoPath "kimi-proxy"
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
 
 if (-not $isAdmin) {
-    Write-Host "❌ This script must be run as Administrator!" -ForegroundColor Red
-    Write-Host "   Right-click → Run as Administrator" -ForegroundColor Yellow
+    Write-Host "[X] This script must be run as Administrator!" -ForegroundColor Red
+    Write-Host "   Right-click -> Run as Administrator" -ForegroundColor Yellow
     exit 1
 }
 
 # Uninstall if requested
 if ($Uninstall) {
-    Write-Host "🛑 Stopping service $ServiceName..." -ForegroundColor Yellow
+    Write-Host "Stopping service $ServiceName..." -ForegroundColor Yellow
     Stop-Service $ServiceName -ErrorAction SilentlyContinue
     
-    Write-Host "🗑️  Removing service $ServiceName..." -ForegroundColor Yellow
+    Write-Host "Removing service $ServiceName..." -ForegroundColor Yellow
     $nssm = Get-Command nssm -ErrorAction SilentlyContinue
     if ($nssm) {
         & nssm remove $ServiceName confirm
@@ -66,7 +66,7 @@ if ($Uninstall) {
         sc.exe delete $ServiceName
     }
     
-    Write-Host "✅ Service removed" -ForegroundColor Green
+    Write-Host "[OK] Service removed" -ForegroundColor Green
     exit 0
 }
 
@@ -74,12 +74,12 @@ if ($Uninstall) {
 $nssmCmd = Get-Command nssm -ErrorAction SilentlyContinue
 
 if (-not $nssmCmd) {
-    Write-Host "📦 nssm not found. Installing via Chocolatey..." -ForegroundColor Yellow
+    Write-Host "nssm not found. Installing via Chocolatey..." -ForegroundColor Yellow
     
     # Check if Chocolatey is installed
     $choco = Get-Command choco -ErrorAction SilentlyContinue
     if (-not $choco) {
-        Write-Host "🍫 Chocolatey not found. Installing..." -ForegroundColor Yellow
+        Write-Host "Chocolatey not found. Installing..." -ForegroundColor Yellow
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
         Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
@@ -97,17 +97,17 @@ if (-not $nssmCmd) {
 }
 
 if (-not $nssmCmd) {
-    Write-Host "❌ Failed to install nssm. Please install manually from https://nssm.cc/" -ForegroundColor Red
+    Write-Host "[X] Failed to install nssm. Please install manually from https://nssm.cc/" -ForegroundColor Red
     exit 1
 }
 
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 Write-Host "  Installing Kimi Proxy as Windows Service" -ForegroundColor White
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 Write-Host ""
 
-Write-Host "📁 Configuration:" -ForegroundColor Yellow
+Write-Host "Configuration:" -ForegroundColor Yellow
 Write-Host "  Service Name:  $ServiceName" -ForegroundColor Gray
 Write-Host "  Python Path:   $PythonPath" -ForegroundColor Gray
 Write-Host "  App Path:      $AppPath" -ForegroundColor Gray
@@ -116,7 +116,7 @@ Write-Host ""
 
 # Validate paths
 if (-not (Test-Path $PythonPath)) {
-    Write-Host "❌ Python not found at: $PythonPath" -ForegroundColor Red
+    Write-Host "[X] Python not found at: $PythonPath" -ForegroundColor Red
     $customPath = Read-Host "Enter full path to python.exe"
     if (Test-Path $customPath) {
         $PythonPath = $customPath
@@ -126,14 +126,14 @@ if (-not (Test-Path $PythonPath)) {
 }
 
 if (-not (Test-Path $AppPath)) {
-    Write-Host "❌ app.py not found at: $AppPath" -ForegroundColor Red
+    Write-Host "[X] app.py not found at: $AppPath" -ForegroundColor Red
     exit 1
 }
 
 # Check if service already exists
 $existingService = Get-Service $ServiceName -ErrorAction SilentlyContinue
 if ($existingService) {
-    Write-Host "⚠️  Service '$ServiceName' already exists" -ForegroundColor Yellow
+    Write-Host "Service '$ServiceName' already exists" -ForegroundColor Yellow
     $response = Read-Host "   Remove and reinstall? (y/N)"
     if ($response -eq 'y') {
         Stop-Service $ServiceName -ErrorAction SilentlyContinue
@@ -144,7 +144,7 @@ if ($existingService) {
     }
 }
 
-Write-Host "🔧 Installing service..." -ForegroundColor Cyan
+Write-Host "Installing service..." -ForegroundColor Cyan
 
 # Install the service
 & nssm install $ServiceName $PythonPath $AppPath
@@ -164,7 +164,7 @@ if (-not (Test-Path $logsDir)) {
 }
 
 # Start the service
-Write-Host "🚀 Starting service..." -ForegroundColor Cyan
+Write-Host "Starting service..." -ForegroundColor Cyan
 Start-Service $ServiceName
 
 Start-Sleep -Seconds 2
@@ -172,11 +172,11 @@ Start-Sleep -Seconds 2
 # Check status
 $service = Get-Service $ServiceName
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
+Write-Host "===========================================================" -ForegroundColor Green
 Write-Host "  Service Status: $($service.Status)" -ForegroundColor $(if($service.Status -eq 'Running'){'Green'}else{'Red'})
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
+Write-Host "===========================================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "📋 Useful commands:" -ForegroundColor Cyan
+Write-Host "Useful commands:" -ForegroundColor Cyan
 Write-Host "  Check status:  Get-Service $ServiceName" -ForegroundColor Gray
 Write-Host "  Stop:          Stop-Service $ServiceName" -ForegroundColor Gray
 Write-Host "  Start:         Start-Service $ServiceName" -ForegroundColor Gray
@@ -184,10 +184,10 @@ Write-Host "  Restart:       Restart-Service $ServiceName" -ForegroundColor Gray
 Write-Host "  View logs:     notepad '$AppDirectory\logs\service.log'" -ForegroundColor Gray
 Write-Host "  Remove:        .\install-service.ps1 -Uninstall" -ForegroundColor Gray
 Write-Host ""
-Write-Host "🌐 Your proxy should now be accessible at:" -ForegroundColor Cyan
+Write-Host "Your proxy should now be accessible at:" -ForegroundColor Cyan
 Write-Host "   https://robleezy-ai.duckdns.org:8080/ask" -ForegroundColor White
 Write-Host ""
-Write-Host "⚠️  Remember to:" -ForegroundColor Yellow
+Write-Host "Remember to:" -ForegroundColor Yellow
 Write-Host "   1. Set up DuckDNS updater (run setup-ddns.ps1)" -ForegroundColor Gray
 Write-Host "   2. Configure your .env file with KIMI_API_KEY and SHARED_SECRET" -ForegroundColor Gray
 Write-Host "   3. Open port 8080 on your router (see ddns-setup.md)" -ForegroundColor Gray

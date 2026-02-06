@@ -12,15 +12,15 @@ $Port = 8080
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
 
 if (-not $isAdmin) {
-    Write-Host "❌ This script must be run as Administrator!" -ForegroundColor Red
-    Write-Host "   Right-click → Run as Administrator" -ForegroundColor Yellow
+    Write-Host "[X] This script must be run as Administrator!" -ForegroundColor Red
+    Write-Host "   Right-click -> Run as Administrator" -ForegroundColor Yellow
     exit 1
 }
 
 if ($Remove) {
-    Write-Host "🗑️  Removing firewall rule '$RuleName'..." -ForegroundColor Yellow
+    Write-Host "Removing firewall rule '$RuleName'..." -ForegroundColor Yellow
     Remove-NetFirewallRule -DisplayName $RuleName -ErrorAction SilentlyContinue
-    Write-Host "✅ Rule removed (if it existed)" -ForegroundColor Green
+    Write-Host "[OK] Rule removed (if it existed)" -ForegroundColor Green
     exit 0
 }
 
@@ -28,7 +28,7 @@ if ($Remove) {
 $existingRule = Get-NetFirewallRule -DisplayName $RuleName -ErrorAction SilentlyContinue
 
 if ($existingRule) {
-    Write-Host "ℹ️  Firewall rule '$RuleName' already exists" -ForegroundColor Cyan
+    Write-Host "Firewall rule '$RuleName' already exists" -ForegroundColor Cyan
     
     # Show current settings
     $portFilter = Get-NetFirewallPortFilter -AssociatedNetFirewallRule $existingRule
@@ -43,7 +43,7 @@ if ($existingRule) {
     Remove-NetFirewallRule -DisplayName $RuleName
 }
 
-Write-Host "🔓 Creating firewall rule for port $Port..." -ForegroundColor Cyan
+Write-Host "Creating firewall rule for port $Port..." -ForegroundColor Cyan
 
 # Create the inbound rule
 New-NetFirewallRule `
@@ -57,7 +57,7 @@ New-NetFirewallRule `
     -Enabled True
 
 Write-Host ""
-Write-Host "✅ Firewall rule created successfully!" -ForegroundColor Green
+Write-Host "[OK] Firewall rule created successfully!" -ForegroundColor Green
 Write-Host ""
 Write-Host "Rule Details:" -ForegroundColor Cyan
 Write-Host "  Name:    $RuleName" -ForegroundColor Gray
