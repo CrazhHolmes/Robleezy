@@ -13,8 +13,8 @@ local KimiCarIntegration = require(ReplicatedStorage:WaitForChild("Shared"):Wait
 
 -- Configuration
 local CONFIG = {
-	-- DDNS self-hosted proxy URL - UPDATE THIS with your DuckDNS hostname
-	KIMI_PROXY_URL = "https://yourhostname.duckdns.org:8080/ask",
+	-- DDNS self-hosted proxy URL for robleezy-ai.duckdns.org
+	KIMI_PROXY_URL = "https://robleezy-ai.duckdns.org:8080/ask",
 	
 	-- Shared secret for proxy authentication - MUST match your .env SHARED_SECRET
 	SHARED_SECRET = "super-secret-string-42",
