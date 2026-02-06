@@ -127,7 +127,7 @@ if (-not (Test-Path $envPath)) {
     
     Write-Host ""
     Write-Host "🔐 Enter your Shared Secret (or press Enter for default):" -ForegroundColor Yellow
-    Write-Info "This is used to authenticate Roblox requests to your proxy"
+    Write-Host "   This is used to authenticate Roblox requests to your proxy" -ForegroundColor $Gray
     $secretSecure = Read-Host -AsSecureString
     $secret = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
         [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secretSecure)
@@ -138,10 +138,7 @@ if (-not (Test-Path $envPath)) {
         Write-Info "Using default shared secret"
     }
     
-    $envContent = @"
-KIMI_API_KEY=$kimiKey
-SHARED_SECRET=$secret
-"@
+    $envContent = "KIMI_API_KEY=$kimiKey`nSHARED_SECRET=$secret"
     
     Set-Content -Path $envPath -Value $envContent
     Write-Success "Created .env file at $envPath"
@@ -222,10 +219,10 @@ Write-Host "  Repo Path:  $RepoPath" -ForegroundColor $Gray
 Write-Host ""
 
 Write-Host "🧪 Testing Checklist:" -ForegroundColor Yellow
-Write-Host "  ☐ Port forwarded on router (manual step - see ddns-setup.md)" -ForegroundColor $Gray
-Write-Host "  ☐ DuckDNS updater running (check with: .\duckdns-updater.ps1 -ShowStatus)" -ForegroundColor $Gray
-Write-Host "  ☐ Firewall port 8080 open" -ForegroundColor $Gray
-Write-Host "  ☐ Windows service running (check with: Get-Service KimiProxy)" -ForegroundColor $Gray
+Write-Host "  [ ] Port forwarded on router (manual step - see ddns-setup.md)" -ForegroundColor $Gray
+Write-Host "  [ ] DuckDNS updater running (check with: .\duckdns-updater.ps1 -ShowStatus)" -ForegroundColor $Gray
+Write-Host "  [ ] Firewall port 8080 open" -ForegroundColor $Gray
+Write-Host "  [ ] Windows service running (check with: Get-Service KimiProxy)" -ForegroundColor $Gray
 Write-Host ""
 
 Write-Host "🎯 Test Commands:" -ForegroundColor Cyan
